@@ -8,6 +8,7 @@ import { RecipeListComponent } from "./recipes/recipe-list/recipe-list.component
 import { RecipeEditComponent } from "./recipes/recipe-edit/recipe-edit.component";
 import { DataStorageService } from "./shared/data-storage.service";
 import { RetriveRecipesResolver } from "./recipes/recipe.service";
+import { AuthComponent } from "./auth/auth.component";
 
 const appRoutes: Routes = [
     { path: '', component: RecipesComponent, pathMatch: "full" },
@@ -22,6 +23,7 @@ const appRoutes: Routes = [
         ]
     },
     { path: 'shopping-list', component: ShoppingListComponent },
+    { path: 'auth', component: AuthComponent },
     { path: '**', component: RecipesComponent },
 ]
 
