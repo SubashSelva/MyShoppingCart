@@ -1,8 +1,10 @@
-import { EventEmitter, Injectable } from "@angular/core";
+import { EventEmitter, Injectable, inject } from "@angular/core";
 import { Recipe } from "./recipe.model";
 import { Ingredient } from "../shared/ingredient.model";
 import { ShoppingListService } from "../shopping-list/shopping-list.service";
 import { Subject } from "rxjs";
+import { ActivatedRouteSnapshot, ResolveFn, RouterStateSnapshot } from "@angular/router";
+import { DataStorageService } from "../shared/data-storage.service";
 
 @Injectable({
     providedIn: 'root'
@@ -76,3 +78,12 @@ export class RecipeService {
         this.shoppingListService.addIngredients(ingredients);
     }
 }
+export const RetriveRecipesResolver: ResolveFn<any> =
+        (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+
+            let recipes = inject(RecipeService).getRecipes();
+            if (recipes.length == 0)
+                return inject(DataStorageService).retreiveRecipes();
+            else
+                return recipes;
+    };
