@@ -15,26 +15,28 @@ export class RecipeService {
     constructor(private shoppingListService:ShoppingListService){
     }
 
-    private recipes:Recipe[]=[
-        new Recipe(
-            1,
-            'A test Recipe',
-            'This is simply a test',
-            'https://static.toiimg.com/thumb/103173028.cms?width=573&height=430',
-            [
-                new Ingredient("Meat",1),
-                new Ingredient("French Fries",20),
-            ]),
-        new Recipe(
-            2,
-            'A test Recipe 2',
-            'This is simply a test 2',
-            'https://static.toiimg.com/thumb/103173028.cms?width=573&height=430',
-            [
-                new Ingredient("Meat",1),
-                new Ingredient("Buns",5),
-            ])
-      ];
+    // private recipes:Recipe[]=[
+    //     new Recipe(
+    //         1,
+    //         'A test Recipe',
+    //         'This is simply a test',
+    //         'https://static.toiimg.com/thumb/103173028.cms?width=573&height=430',
+    //         [
+    //             new Ingredient("Meat",1),
+    //             new Ingredient("French Fries",20),
+    //         ]),
+    //     new Recipe(
+    //         2,
+    //         'A test Recipe 2',
+    //         'This is simply a test 2',
+    //         'https://static.toiimg.com/thumb/103173028.cms?width=573&height=430',
+    //         [
+    //             new Ingredient("Meat",1),
+    //             new Ingredient("Buns",5),
+    //         ])
+    //   ];
+    
+    private recipes:Recipe[]=[];
 
     addRecipe(recipe:Recipe){
         this.recipes.push(recipe);
@@ -63,6 +65,11 @@ export class RecipeService {
 
     getRecipesById(id:number){
         return this.recipes.find(i=>i.id==id);
+    }
+
+    reloadRecipes(recipes:Recipe[]){
+        this.recipes=recipes;
+        this.recipesUpdated.next(this.recipes.slice());
     }
 
     addIngredientToShoppingList(ingredients:Ingredient[]){
