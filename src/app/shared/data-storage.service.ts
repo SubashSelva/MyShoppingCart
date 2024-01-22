@@ -1,34 +1,39 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Recipe } from "../recipes/recipe.model";
 import { RecipeService } from "../recipes/recipe.service";
-import { map, tap } from "rxjs/operators";
+import { exhaustMap, map, take, tap } from "rxjs/operators";
+import { AuthService } from "../auth/auth.service";
 
 
-@Injectable({providedIn:'root'})
+@Injectable({ providedIn: 'root' })
 
-export class DataStorageService{
+export class DataStorageService {
 
-    constructor(private httpClient:HttpClient, private recipeService:RecipeService){
+    constructor(private httpClient: HttpClient,
+        private recipeService: RecipeService, private authService: AuthService) {
 
     }
 
-    storeRecipes(){
-        var recipes=this.recipeService.getRecipes();
-        return this.httpClient.put("https://recipe-book-1f02c-default-rtdb.firebaseio.com/recipes.json",recipes);
+    storeRecipes() {
+        var recipes = this.recipeService.getRecipes();
+        return this.httpClient.put
+            ("https://recipe-book-1f02c-default-rtdb.firebaseio.com/recipes.json",
+                recipes);
     }
 
-    retreiveRecipes(){
+    retreiveRecipes() {
         return this.httpClient.get<Recipe[]>
-        ('https://recipe-book-1f02c-default-rtdb.firebaseio.com/recipes.json')
-        .pipe(
-            map(resObj=>{
-            return resObj.map(resObj=>{
-                return {...resObj,ingredients:resObj.ingredients?resObj.ingredients:[]}
-            })
-        }),
-        tap(resObj=>{
-            this.recipeService.reloadRecipes(resObj);
-        }));
+            ('https://recipe-book-1f02c-default-rtdb.firebaseio.com/recipes.json')
+            .pipe(
+                map(resObj => {
+                    return resObj.map(resObj => {
+                        return { ...resObj, ingredients: resObj.ingredients ? resObj.ingredients : [] }
+                    })
+                }),
+                tap(resObj => {
+                    this.recipeService.reloadRecipes(resObj);
+                })
+            );
     }
 }
