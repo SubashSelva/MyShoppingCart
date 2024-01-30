@@ -1,9 +1,10 @@
 import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
-import { BehaviorSubject, Subject, throwError } from "rxjs";
+import { BehaviorSubject, throwError } from "rxjs";
 import { catchError, map, take, tap } from "rxjs/operators";
 import { User } from "./user.model";
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from "@angular/router";
+import { environment } from "src/environments/environment.development";
 
 export interface AuthResponseModel {
     idToken: string,
@@ -59,7 +60,7 @@ export class AuthService {
     signUp(email: string, password: string) {
         var postData = { email: email, password: password, returnSecureToken: true };
         return this.httpClient.post<AuthResponseModel>(
-            'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyC7pDNzHkWfKQWprC7TtUZh2W-gk8w9sNI'
+            'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + environment.fireBaseAPIKey
             , postData)
             .pipe(catchError(this.HandleErrors), tap(resObj => {
                 this.HandleAuthData(resObj.email, resObj.localId, resObj.idToken, +resObj.expiresIn);
@@ -68,7 +69,7 @@ export class AuthService {
     login(email: string, password: string) {
         var postData = { email: email, password: password, returnSecureToken: true };
         return this.httpClient.post<AuthResponseModel>(
-            'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyC7pDNzHkWfKQWprC7TtUZh2W-gk8w9sNI'
+            'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + environment.fireBaseAPIKey
             , postData)
             .pipe(catchError(this.HandleErrors), tap(resObj => {
                 this.HandleAuthData(resObj.email, resObj.localId, resObj.idToken, +resObj.expiresIn);

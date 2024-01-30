@@ -4,6 +4,7 @@ import { Recipe } from "../recipes/recipe.model";
 import { RecipeService } from "../recipes/recipe.service";
 import { exhaustMap, map, take, tap } from "rxjs/operators";
 import { AuthService } from "../auth/auth.service";
+import { environment } from "src/environments/environment.development";
 
 
 @Injectable({ providedIn: 'root' })
@@ -18,13 +19,13 @@ export class DataStorageService {
     storeRecipes() {
         var recipes = this.recipeService.getRecipes();
         return this.httpClient.put
-            ("https://recipe-book-1f02c-default-rtdb.firebaseio.com/recipes.json",
+            (environment.fireBaseDatabaseBaseURL + 'recipes.json',
                 recipes);
     }
 
     retreiveRecipes() {
         return this.httpClient.get<Recipe[]>
-            ('https://recipe-book-1f02c-default-rtdb.firebaseio.com/recipes.json')
+            (environment.fireBaseDatabaseBaseURL + 'recipes.json')
             .pipe(
                 map(resObj => {
                     return resObj.map(resObj => {
