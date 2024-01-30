@@ -24,16 +24,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.initSubscription.unsubscribe();
   }
   ngOnInit() {
-    this.recipes = this.recipeService.getRecipes();
-    console.log("this.recipes.length", this.recipes.length);
-    if (this.recipes.length == 0) {
-      this.initSubscription = this.dataservice.retreiveRecipes().subscribe((recipes: Recipe[]) => {
-        console.log("Initial Obervable triggered!")
-        this.recipes = recipes;
-      });
+    let recipes = this.recipeService.getRecipes();
+
+    if (recipes.length == 0) {
+      this.initSubscription = this.dataservice.retreiveRecipes().subscribe();
     }
     this.subscription = this.recipeService.recipesUpdated.subscribe((recipes: Recipe[]) => {
-      console.log("Obervable triggered!")
       this.recipes = recipes;
     })
   }
