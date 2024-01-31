@@ -5,6 +5,10 @@
 </div>
 <hr>
 <div class="row">
+    <div *ngIf="recipes" class="col-xs-12">
+        <h3>Please select the recipe..</h3>
+    </div>
+    <hr>
     <div class="col-md-12">
         <app-recipe-item *ngFor="let recipe of recipes" 
         [recipe]="recipe"></app-recipe-item>

@@ -7,7 +7,7 @@ import { RecipeEditComponent } from "./recipe-edit/recipe-edit.component";
 import { RecipeStartComponent } from "./recipe-start/recipe-start.component";
 import { RouterModule, Routes } from "@angular/router";
 import { AuthGuardActivation } from "../auth/auth.service";
-import { RecipeService, RetriveRecipesResolver } from "./recipe.service";
+import { RetriveRecipesResolver } from "./recipe.service";
 import { SharedModule } from "../shared/shared.module";
 
 
