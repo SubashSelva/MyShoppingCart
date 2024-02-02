@@ -8,7 +8,7 @@
       <ul class="nav navbar-nav">
         <li *ngIf="!isAuthenticated" routerLinkActive="active"><a routerLink="/auth">Authenticate</a></li>
         <li *ngIf="isAuthenticated" routerLinkActive="active" routerLinkActiveOptions="{exact: true}"><a routerLink="/recipes">Recipes</a></li>
-        <li routerLinkActive="active"><a [routerLink]="['/shopping-list']">Shopping List</a></li>
+        <li *ngIf="isAuthenticated" routerLinkActive="active"><a [routerLink]="['/shopping-list']">Shopping List</a></li>
       </ul>
       <ul *ngIf="isAuthenticated" class="nav navbar-nav navbar-right">
         <li class="dropdown" >

@@ -3,6 +3,7 @@ import { Recipe } from "./recipe.model";
 import { Ingredient } from "../shared/ingredient.model";
 import { ShoppingListService } from "../shopping-list/shopping-list.service";
 import { Subject } from "rxjs";
+import { map } from "rxjs/operators";
 import { ActivatedRouteSnapshot, ResolveFn, RouterStateSnapshot } from "@angular/router";
 import { DataStorageService } from "../shared/data-storage.service";
 
@@ -12,9 +13,9 @@ import { DataStorageService } from "../shared/data-storage.service";
 
 export class RecipeService {
 
-    recipesUpdated=new Subject<Recipe[]>();
+    recipesUpdated = new Subject<Recipe[]>();
 
-    constructor(private shoppingListService:ShoppingListService){
+    constructor(private shoppingListService: ShoppingListService) {
     }
 
     // private recipes:Recipe[]=[
@@ -37,53 +38,55 @@ export class RecipeService {
     //             new Ingredient("Buns",5),
     //         ])
     //   ];
-    
-    private recipes:Recipe[]=[];
 
-    addRecipe(recipe:Recipe){
+    private recipes: Recipe[] = [];
+
+    addRecipe(recipe: Recipe) {
         this.recipes.push(recipe);
         this.recipesUpdated.next(this.recipes.slice());
     }
 
-    updateRecipe(recipe:Recipe){
-        this.recipes.filter(r=>r.id==recipe.id).forEach(existingrecipe=>{
-            existingrecipe.name=recipe.name;
-            existingrecipe.imagePath=recipe.imagePath;
-            existingrecipe.description=recipe.description;
-            existingrecipe.ingredients=recipe.ingredients;
+    updateRecipe(recipe: Recipe) {
+        this.recipes.filter(r => r.id == recipe.id).forEach(existingrecipe => {
+            existingrecipe.name = recipe.name;
+            existingrecipe.imagePath = recipe.imagePath;
+            existingrecipe.description = recipe.description;
+            existingrecipe.ingredients = recipe.ingredients;
             return;
         })
         this.recipesUpdated.next(this.recipes.slice());
     }
-    deleteRecipe(recipeId:number){
-        let index=this.recipes.findIndex(r=>r.id==recipeId);
-        this.recipes.splice(index,1);
+    deleteRecipe(recipeId: number) {
+        let index = this.recipes.findIndex(r => r.id == recipeId);
+        this.recipes.splice(index, 1);
         this.recipesUpdated.next(this.recipes.slice());
     }
 
-    getRecipes(){
-       return this.recipes.slice();
+    getRecipes() {
+        return this.recipes.slice();
     }
 
-    getRecipesById(id:number){
-        return this.recipes.find(i=>i.id==id);
+    getRecipesById(id: number) {
+        return this.recipes.find(i => i.id == id);
     }
 
-    reloadRecipes(recipes:Recipe[]){
-        this.recipes=recipes;
+    reloadRecipes(recipes: Recipe[]) {
+        this.recipes = recipes;
         this.recipesUpdated.next(this.recipes.slice());
     }
 
-    addIngredientToShoppingList(ingredients:Ingredient[]){
+    addIngredientToShoppingList(ingredients: Ingredient[]) {
         this.shoppingListService.addIngredients(ingredients);
     }
 }
 export const RetriveRecipesResolver: ResolveFn<any> =
-        (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+    (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
 
-            let recipes = inject(RecipeService).getRecipes();
-            if (recipes.length == 0)
-                return inject(DataStorageService).retreiveRecipes();
-            else
-                return recipes;
+        let recipes = inject(RecipeService).getRecipes();
+        if (recipes.length == 0)
+            return inject(DataStorageService).retriveItems().pipe(map(resObj => {
+                return resObj.recipes;
+            }));
+        else
+            return recipes;
     };

@@ -1,71 +1,82 @@
 <div class="row">
-    <div class="col-xs-12">
-        <form [formGroup]="recipeForm" *ngIf="recipeForm" (ngSubmit)="onSubmit()">
-            <div class="row">
-                <div class="col-xs-12 btn-toolbar">
-                    <button type="submit" class="btn btn-success mr-1" [disabled]="!recipeForm.valid">
-                        Save
-                    </button>
-                    <button type="button" class="btn btn-danger" (click)="onCancel()">Cancel</button>
-                </div>
+  <div class="col-xs-12">
+    <form [formGroup]="recipeForm" *ngIf="recipeForm" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" formControlName="name" id="name" class="form-control" autocomplete="on" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="form-group">
+            <label for="imagePath">ImagePath</label>
+            <input type="text" formControlName="imagePath" id="imagePath" class="form-control" #imagePath
+              autocomplete="on" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <img [src]="imagePath.value" class="img-responsive" autocomplete="on" />
+        </div>
+      </div>
+      <br />
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea formControlName="description" id="description" class="form-control" autocomplete="on"
+              style="height:150px;"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12" formArrayName="ingredients">
+          <label *ngIf="recipeForm.get('ingredients').controls.length>0" for="ingredients">Ingredients</label>
+          <div class="row">
+            <div class="col-xs-12">
+              <button type="button" class="btn btn-success" (click)="onAddIngredient()">
+                Add Ingredient
+              </button>
             </div>
-            <hr>
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" formControlName="name" id="name" class="form-control" autocomplete="on">
-                    </div>
-                </div>
+          </div>
+          <div class="row" *ngFor="
+              let ingredientCntrl of recipeForm.get('ingredients').controls;
+              let i = index
+            " [formGroupName]="i" style="margin-top: 10px">
+            <div class="col-xs-8">
+              <label for="name">Name</label>
+              <input type="text" [id]="'name' + id" formControlName="name" class="form-control" autocomplete="on" />
             </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="form-group">
-                        <label for="imagePath">ImagePath</label>
-                        <input type="text" formControlName="imagePath" id="imagePath" class="form-control" #imagePath autocomplete="on">
-                    </div>
-                </div>
+            <div class="col-xs-2">
+              <label for="amount">Amount</label>
+              <input type="number" [id]="'amount' + id" formControlName="amount" class="form-control"
+                autocomplete="on" />
             </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <img [src]="imagePath.value" class="img-responsive" autocomplete="on">
-                </div>
+            <div class="col-xs-2" style="padding-top: 25px">
+              <button type="button" class="btn btn-danger" (click)="onDeleteIngredient(i)">
+                X
+              </button>
             </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="form-group">
-                        <label for="description">Description</label>
-                        <textarea formControlName="description" id="description" class="form-control" autocomplete="on"></textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12" formArrayName="ingredients">
-                    <div class="row" *ngFor="let ingredientCntrl of recipeForm.get('ingredients').controls; let i=index"
-                        [formGroupName]="i" style="margin-top: 10px;">
-                        <div class="col-xs-8">
-                            <label for="name">Name</label>
-                            <input type="text" [id]="'name'+id" formControlName="name" class="form-control"
-                                autocomplete="on">
-                        </div>
-                        <div class="col-xs-2">
-                            <label for="amount">Amount</label>
-                            <input type="number" [id]="'amount'+id" formControlName="amount" class="form-control"
-                                autocomplete="on">
-                        </div>
-                        <div class="col-xs-2" style="padding-top: 25px;">
-                            <button type="button" class="btn btn-danger" (click)="onDeleteIngredient(i)">X</button>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <button type="button" class="btn btn-success" (click)="onAddIngredient()">Add
-                                Ingredient</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
+          </div>
+        </div>
+      </div>
+      <br/>
+      <br/>
+      <hr/>
+      <div class="row">
+        <div class="form-group btn-toolbar" style="float: right;">
+          <button type="submit" class="btn btn-success btn-lg mr-1" [disabled]="!recipeForm.valid">
+            Update
+          </button>
+          <button type="button" class="btn btn-danger btn-lg" (click)="onCancel()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
