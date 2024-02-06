@@ -7,6 +7,7 @@ import { HeaderComponent } from './header/header.component';
 import { CoreModule } from './core.module';
 import { AppRoutingModule } from './app.routing.module';
 import { SharedModule } from './shared/shared.module';
+import { FirebaseConfigModule } from './shopping-list/app.firebase-config.module';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { SharedModule } from './shared/shared.module';
     HttpClientModule,
     SharedModule,
     CoreModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FirebaseConfigModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,27 +1,29 @@
-import { Component } from "@angular/core";
-import { FormGroup, NgForm } from "@angular/forms";
-import { AuthResponseModel, AuthService } from "./auth.service";
-import { Observable } from "rxjs";
+import { Component, OnInit } from "@angular/core";
+import { NgForm } from "@angular/forms";
+import { AuthService } from "./auth.service";
 import { Router } from "@angular/router";
+
 
 @Component({
     selector: 'app-auth',
     templateUrl: './auth.component.html',
 })
 
-export class AuthComponent {
+export class AuthComponent implements OnInit {
 
-    constructor(private authService: AuthService, private router:Router) {
-
+    constructor(private authService: AuthService, private router: Router) {
     }
 
     isLoginMode = true;
     isLoading = false;
     errorMsg = ''
 
+    ngOnInit(): void {
+    }
+
     onSwitchMode() {
         this.isLoginMode = !this.isLoginMode;
-        this.errorMsg=null;
+        this.errorMsg = null;
     }
 
     onSubmit(authForm: NgForm) {
@@ -33,27 +35,38 @@ export class AuthComponent {
         this.isLoading = true;
         let emailId = authForm?.value?.emailId;
         let password = authForm?.value?.password;
-        let authObservable: Observable<AuthResponseModel>;
+        let authPromise: Promise<void>;
 
 
         if (!this.isLoginMode)
-            authObservable = this.authService.signUp(emailId, password);
+            authPromise = this.authService.signUp(emailId, password);
         else
-            authObservable = this.authService.login(emailId, password);
+            authPromise = this.authService.signIn(emailId, password);
 
-        authObservable.subscribe({
-            next: (resObj: any) => {
-                console.log(resObj);
-                this.isLoading = false;
-                this.errorMsg = null;
-                this.router.navigate(['/recipes']);
-            },
-            error: (errorMsg: any) => {
-                console.log(errorMsg);
-                this.errorMsg = errorMsg;
-                this.isLoading = false;
-            }
-        });
+        authPromise.then(resObj => {
+            console.log(resObj);
+            this.isLoading = false;
+            this.errorMsg = null;
+            this.router.navigate(['/recipes']);
+        }).catch(errObj => {
+            console.log(errObj);
+            this.errorMsg = errObj;
+            this.isLoading = false;
+        })
         authForm.reset();
+    }
+
+    signInWithGoogle() {
+        this.isLoading = true;
+        this.authService.signInWithGoogle().then(resp => {
+            this.errorMsg = null;
+            console.log("Google Login Success!", resp);
+            this.router.navigate(['/recipes']);
+            console.log("Google Login Successaa!", resp);
+        }).catch(errObj => {
+            console.log(errObj);
+            this.errorMsg = errObj;
+        });
+        this.isLoading = false;
     }
 }

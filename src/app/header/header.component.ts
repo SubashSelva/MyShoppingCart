@@ -12,14 +12,13 @@ import { Subscription } from 'rxjs';
 export class HeaderComponent implements OnInit, OnDestroy {
 
   userSub: Subscription;
-  isAuthenticated:boolean = false;
+  isAuthenticated: boolean = false;
   constructor(private dataService: DataStorageService, private authService: AuthService) {
   }
 
   ngOnInit(): void {
     this.userSub = this.authService.userInfo.subscribe(user => {
       this.isAuthenticated = !user ? false : true;
-      console.log("isAuthenticated",this.isAuthenticated);
     });
   }
 
@@ -40,7 +39,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
-  onLogout(){
-    this.authService.logout();
+  onLogout() {
+    this.authService.signOut().then(resObj => {
+      console.log("User Logged Out!");
+    }).catch(errObj => {
+      console.log("User Logout failed!", errObj)
+    });
   }
 }

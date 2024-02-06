@@ -16,12 +16,15 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" class="form-control" ngModel required minlength="6">
             </div>
-            <div>
-                <button class="btn btn-primary" type="submit" [disabled]="!authForm.valid">{{isLoginMode?'Login' : 'Sign Up'}}</button> |
-                <button class="btn btn-primary" type="button" (click)="onSwitchMode()">
+            <div class="form-group btn-toolbar">
+                <button class="btn btn-primary btn-lg mr-1" type="submit" [disabled]="!authForm.valid">{{isLoginMode?'Login' : 'Sign Up'}}</button>
+                <button class="btn btn-primary btn-lg mr-1" type="button" (click)="onSwitchMode()">
                     Switch to {{isLoginMode?'Sign Up':'Login'}}
                 </button>
+
+                <button class="btn btn-danger btn-lg" type="button" (click)="signInWithGoogle()"><span class="glyphicon glyphicon-google"></span> SignIn with Google </button>
             </div>
         </form>
+        
     </div>
 </div>
