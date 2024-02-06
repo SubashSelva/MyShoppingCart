@@ -40,7 +40,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onLogout() {
-    this.authService.signOut().then(resObj => {
+    this.authService.signOut().then(() => {
       console.log("User Logged Out!");
     }).catch(errObj => {
       console.log("User Logout failed!", errObj)

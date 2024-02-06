@@ -28,15 +28,9 @@ export class AuthService {
     tokenExpirationTimer: any;
     loggedInUser: UserInfo;
 
-    constructor(private httpClient: HttpClient, private router: Router,
-        private fireAuth: AngularFireAuth) {
+    constructor(private router: Router, private fireAuth: AngularFireAuth) {
 
-        this.fireAuth.authState.subscribe((user) => {
-            if (user)
-                this.HandleUserAuthData(user);
-            else
-                localStorage.removeItem("userData");
-        })
+
     }
 
     autoLogin() {
@@ -60,36 +54,37 @@ export class AuthService {
                 userData._tokenExpirationDate)
                 .getTime() - new Date().getTime();
 
-            this.autoLogout(tokenExpiryInMilliSeconds);
+            //this.autoLogout(tokenExpiryInMilliSeconds);
             this.router.navigate(['/recipes']);
         }
     }
 
-    async signUp(email: string, password: string) {
+    signUp(email: string, password: string) {
 
-        return await this.fireAuth
+        return this.fireAuth
             .createUserWithEmailAndPassword(email, password)
             .then((user) => {
-                this.HandleUserAuthData(user.user);
+                this.HandleUserAuthData(user.user, "signUp.createUserWithEmailAndPassword");
             }).catch(err => {
                 console.log("SignUp Failed!..", err);
             });
     }
 
-    async signIn(email: string, password: string) {
+    signIn(email: string, password: string) {
 
-        return await this.fireAuth
+        return this.fireAuth
             .signInWithEmailAndPassword(email, password)
-            .then((user) => {
-                this.HandleUserAuthData(user.user);
+            .then((resObj) => {
+                console.log("SignIn", resObj);
+                this.HandleUserAuthData(resObj.user, "signIn.signInWithEmailAndPassword");
             }).catch(err => {
                 console.log("SignIn Failed!..", err);
             });
     }
 
-    async forgotPassword(email: string) {
+    forgotPassword(email: string) {
 
-        await this.fireAuth
+        this.fireAuth
             .sendPasswordResetEmail(email)
             .then(() => {
                 alert("Password reset email is triggered!, Please check you inbox.");
@@ -98,15 +93,21 @@ export class AuthService {
             });
     }
 
-    async signInWithGoogle() {
-        return await this.authLogin(new firebase.auth.GoogleAuthProvider());
+    signInWithGoogle() {
+        return this.authLogin(new firebase.auth.GoogleAuthProvider());
     }
 
-    async authLogin(provider: firebase.auth.AuthProvider) {
+    authLogin(provider: firebase.auth.AuthProvider) {
 
         try {
-            const resObj = await this.fireAuth.signInWithPopup(provider);
-            this.HandleUserAuthData(resObj.user);
+            if (firebase.auth().currentUser == null)
+                return this.fireAuth.signInWithRedirect(provider);
+
+            return this.fireAuth.getRedirectResult().then(resObj => {
+                console.log("getRedirectResult.resObj", resObj)
+                return this.HandleUserAuthData(resObj.user, "authLogin.getRedirectResult");
+            });
+
         } catch (errObj) {
             console.log("SignInWithGoogle Failed!..", errObj);
         }
@@ -126,27 +127,30 @@ export class AuthService {
         // }));
     }
 
-    async signOut() {
-        await this.fireAuth.signOut().then(() => {
+    signOut() {
+        return this.fireAuth.signOut().then(() => {
             this.logoutCallback();
+            return null;
+        }).catch(errObj => {
+            return errObj;
         });
     }
 
     autoLogout(tokenExpiryInMilliSeconds: number) {
-        this.tokenExpirationTimer = setTimeout(() => {
-            this.signOut().then();
+        this.tokenExpirationTimer = setTimeout(async () => {
+            this.signOut();
         }, tokenExpiryInMilliSeconds);
     }
 
-    private HandleUserAuthData(user: firebase.User) {
-        console.log("HandleUserAuthData", user);
+    public HandleUserAuthData(user: firebase.User, comingArea: string) {
+        console.log("coming area", comingArea)
         user.getIdTokenResult().then(res => {
             this.loggedInUser = new UserInfo(
                 user.email, user.uid, res.token,
                 new Date(res.expirationTime), true);
             this.userInfo.next(this.loggedInUser);
-            this.autoLogout(new Date(res.expirationTime).getMilliseconds());
-            localStorage.setItem("userData", JSON.stringify(user));
+            localStorage.setItem("userData", JSON.stringify(this.loggedInUser));
+            //this.autoLogout(new Date(res.expirationTime).getMilliseconds());
         });
     }
 

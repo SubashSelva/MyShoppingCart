@@ -1,7 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { AuthService } from "./auth.service";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
+import { AngularFireAuth } from "@angular/fire/compat/auth";
 
 
 @Component({
@@ -11,14 +12,26 @@ import { Router } from "@angular/router";
 
 export class AuthComponent implements OnInit {
 
-    constructor(private authService: AuthService, private router: Router) {
+    constructor(private authService: AuthService,
+        private router: Router, private fireAuth: AngularFireAuth, private activatedRoute: ActivatedRoute) {
     }
 
     isLoginMode = true;
     isLoading = false;
-    errorMsg = ''
+    errorMsg = '';
+    userLoggedIn = false;
 
     ngOnInit(): void {
+        this.fireAuth.onAuthStateChanged((user) => {
+            if (user != null) {
+                this.authService.HandleUserAuthData(user, "ngOnInit.onAuthStateChanged");
+                this.userLoggedIn = true;
+            }
+            else {
+                this.authService.signOut();
+                this.userLoggedIn = false;
+            }
+        })
     }
 
     onSwitchMode() {
@@ -47,7 +60,7 @@ export class AuthComponent implements OnInit {
             console.log(resObj);
             this.isLoading = false;
             this.errorMsg = null;
-            this.router.navigate(['/recipes']);
+            this.router.navigate(['/recipes'], { relativeTo: this.activatedRoute });
         }).catch(errObj => {
             console.log(errObj);
             this.errorMsg = errObj;
@@ -57,12 +70,17 @@ export class AuthComponent implements OnInit {
     }
 
     signInWithGoogle() {
+
+        if (this.userLoggedIn) {
+            this.router.navigate(['/recipes'], { relativeTo: this.activatedRoute });
+            return;
+        }
+
         this.isLoading = true;
-        this.authService.signInWithGoogle().then(resp => {
+        this.authService.signInWithGoogle().then(() => {
+            alert("signInWithGoogle");
             this.errorMsg = null;
-            console.log("Google Login Success!", resp);
-            this.router.navigate(['/recipes']);
-            console.log("Google Login Successaa!", resp);
+            this.router.navigate(['/recipes'], { relativeTo: this.activatedRoute });
         }).catch(errObj => {
             console.log(errObj);
             this.errorMsg = errObj;
