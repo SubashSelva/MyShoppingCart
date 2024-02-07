@@ -3,6 +3,7 @@ import { NgForm } from "@angular/forms";
 import { AuthService } from "./auth.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import { AngularFireAuth } from "@angular/fire/compat/auth";
+import { BehaviorSubject, Subject } from "rxjs";
 
 
 @Component({
@@ -20,18 +21,28 @@ export class AuthComponent implements OnInit {
     isLoading = false;
     errorMsg = '';
     userLoggedIn = false;
+    redirectsUrl = new Subject<string>();
 
     ngOnInit(): void {
+
         this.fireAuth.onAuthStateChanged((user) => {
+            console.log("Step 4");
             if (user != null) {
+                console.log("Step 5");
                 this.authService.HandleUserAuthData(user, "ngOnInit.onAuthStateChanged");
                 this.userLoggedIn = true;
+                // this.redirectsUrl.next("recipes");
+                return this.router.navigate(['recipes']);
             }
             else {
                 this.authService.signOut();
                 this.userLoggedIn = false;
             }
-        })
+        });
+
+        this.redirectsUrl.subscribe(url => {
+            this.router.navigate(['/' + url]);
+        });
     }
 
     onSwitchMode() {
@@ -78,6 +89,7 @@ export class AuthComponent implements OnInit {
 
         this.isLoading = true;
         this.authService.signInWithGoogle().then(() => {
+            console.log("Step 3");
             alert("signInWithGoogle");
             this.errorMsg = null;
             this.router.navigate(['/recipes'], { relativeTo: this.activatedRoute });

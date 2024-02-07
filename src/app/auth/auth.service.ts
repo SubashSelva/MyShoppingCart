@@ -100,8 +100,11 @@ export class AuthService {
     authLogin(provider: firebase.auth.AuthProvider) {
 
         try {
-            if (firebase.auth().currentUser == null)
+            console.log("step 1");
+            if (firebase.auth().currentUser == null) {
+                console.log("step 2");
                 return this.fireAuth.signInWithRedirect(provider);
+            }
 
             return this.fireAuth.getRedirectResult().then(resObj => {
                 console.log("getRedirectResult.resObj", resObj)
