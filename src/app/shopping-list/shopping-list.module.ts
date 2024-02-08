@@ -2,12 +2,11 @@ import { NgModule } from "@angular/core";
 import { ShoppingEditComponent } from "./shopping-edit/shopping-edit.component";
 import { ShoppingListComponent } from "./shopping-list.component";
 import { RouterModule, Routes } from "@angular/router";
-import { ShoppingListService } from "./shopping-list.service";
 import { SharedModule } from "../shared/shared.module";
 
 
 const appRoutes: Routes = [
-    { path: 'shopping-list', component: ShoppingListComponent },
+    { path: '', component: ShoppingListComponent },
 ]
 
 @NgModule({

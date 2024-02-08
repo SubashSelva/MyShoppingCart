@@ -1,4 +1,3 @@
-import { HttpClient } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { map, take } from "rxjs/operators";
@@ -30,7 +29,6 @@ export class AuthService {
 
     constructor(private router: Router, private fireAuth: AngularFireAuth) {
 
-
     }
 
     autoLogin() {
@@ -59,27 +57,28 @@ export class AuthService {
         }
     }
 
-    signUp(email: string, password: string) {
+    async signUp(email: string, password: string) {
 
-        return this.fireAuth
-            .createUserWithEmailAndPassword(email, password)
-            .then((user) => {
-                this.HandleUserAuthData(user.user, "signUp.createUserWithEmailAndPassword");
-            }).catch(err => {
-                console.log("SignUp Failed!..", err);
-            });
+        try {
+            const resObj = await this.fireAuth
+                .createUserWithEmailAndPassword(email, password);
+            return await this.handleUserAuthData(resObj.user);
+        } catch (err) {
+            console.log("SignUp Failed!..", err);
+            return err;
+        }
     }
 
-    signIn(email: string, password: string) {
+    async signIn(email: string, password: string) {
 
-        return this.fireAuth
-            .signInWithEmailAndPassword(email, password)
-            .then((resObj) => {
-                console.log("SignIn", resObj);
-                this.HandleUserAuthData(resObj.user, "signIn.signInWithEmailAndPassword");
-            }).catch(err => {
-                console.log("SignIn Failed!..", err);
-            });
+        try {
+            const resObj = await this.fireAuth
+                .signInWithEmailAndPassword(email, password);
+            return await this.handleUserAuthData(resObj.user);
+        } catch (err) {
+            console.log("SignIn Failed!..", err);
+            return err;
+        }
     }
 
     forgotPassword(email: string) {
@@ -100,19 +99,17 @@ export class AuthService {
     authLogin(provider: firebase.auth.AuthProvider) {
 
         try {
-            console.log("step 1");
             if (firebase.auth().currentUser == null) {
-                console.log("step 2");
                 return this.fireAuth.signInWithRedirect(provider);
             }
 
             return this.fireAuth.getRedirectResult().then(resObj => {
-                console.log("getRedirectResult.resObj", resObj)
-                return this.HandleUserAuthData(resObj.user, "authLogin.getRedirectResult");
+                return this.handleUserAuthData(resObj.user);
             });
 
         } catch (errObj) {
             console.log("SignInWithGoogle Failed!..", errObj);
+            return errObj;
         }
 
         // return this.fireAuth.authState.pipe(map(async user => {
@@ -130,13 +127,14 @@ export class AuthService {
         // }));
     }
 
-    signOut() {
-        return this.fireAuth.signOut().then(() => {
+    async signOut() {
+        try {
+            await this.fireAuth.signOut();
             this.logoutCallback();
             return null;
-        }).catch(errObj => {
+        } catch (errObj) {
             return errObj;
-        });
+        }
     }
 
     autoLogout(tokenExpiryInMilliSeconds: number) {
@@ -145,16 +143,20 @@ export class AuthService {
         }, tokenExpiryInMilliSeconds);
     }
 
-    public HandleUserAuthData(user: firebase.User, comingArea: string) {
-        console.log("coming area", comingArea)
-        user.getIdTokenResult().then(res => {
+    public async handleUserAuthData(user: firebase.User) {
+        try {
+            const res = await user.getIdTokenResult();
             this.loggedInUser = new UserInfo(
                 user.email, user.uid, res.token,
                 new Date(res.expirationTime), true);
             this.userInfo.next(this.loggedInUser);
             localStorage.setItem("userData", JSON.stringify(this.loggedInUser));
             //this.autoLogout(new Date(res.expirationTime).getMilliseconds());
-        });
+            this.router.navigate(['/recipes']);
+            return res;
+        } catch (errObj) {
+            return errObj;
+        }
     }
 
     private logoutCallback() {

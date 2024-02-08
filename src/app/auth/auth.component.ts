@@ -1,9 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { AuthService } from "./auth.service";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { AngularFireAuth } from "@angular/fire/compat/auth";
-import { BehaviorSubject, Subject } from "rxjs";
 
 
 @Component({
@@ -14,34 +13,32 @@ import { BehaviorSubject, Subject } from "rxjs";
 export class AuthComponent implements OnInit {
 
     constructor(private authService: AuthService,
-        private router: Router, private fireAuth: AngularFireAuth, private activatedRoute: ActivatedRoute) {
+        private router: Router, private fireAuth: AngularFireAuth) {
     }
 
     isLoginMode = true;
     isLoading = false;
     errorMsg = '';
     userLoggedIn = false;
-    redirectsUrl = new Subject<string>();
 
     ngOnInit(): void {
-
+        this.isLoading = true;
         this.fireAuth.onAuthStateChanged((user) => {
-            console.log("Step 4");
+            
             if (user != null) {
-                console.log("Step 5");
-                this.authService.HandleUserAuthData(user, "ngOnInit.onAuthStateChanged");
                 this.userLoggedIn = true;
-                // this.redirectsUrl.next("recipes");
-                return this.router.navigate(['recipes']);
+                this.authService.handleUserAuthData(user).then(resObj => {
+                    this.isLoading = false;
+                    console.log("User LoggedIn!");
+                }).catch(errObj => console.log(errObj));
             }
             else {
-                this.authService.signOut();
                 this.userLoggedIn = false;
+                this.authService.signOut().then(() => {
+                    this.isLoading = false;
+                    console.log("User LoggedOut!");
+                });
             }
-        });
-
-        this.redirectsUrl.subscribe(url => {
-            this.router.navigate(['/' + url]);
         });
     }
 
@@ -67,35 +64,29 @@ export class AuthComponent implements OnInit {
         else
             authPromise = this.authService.signIn(emailId, password);
 
-        authPromise.then(resObj => {
-            console.log(resObj);
+        authPromise.then(() => {
+            console.log("User LoggedIn!");
             this.isLoading = false;
             this.errorMsg = null;
-            this.router.navigate(['/recipes'], { relativeTo: this.activatedRoute });
-        }).catch(errObj => {
-            console.log(errObj);
-            this.errorMsg = errObj;
+        }).catch(err => {
+            console.log(err);
+            this.errorMsg = err;
             this.isLoading = false;
         })
         authForm.reset();
     }
 
     signInWithGoogle() {
-
-        if (this.userLoggedIn) {
-            this.router.navigate(['/recipes'], { relativeTo: this.activatedRoute });
-            return;
-        }
+        if (this.userLoggedIn)
+            this.router.navigate(['/recipes']);
 
         this.isLoading = true;
         this.authService.signInWithGoogle().then(() => {
-            console.log("Step 3");
-            alert("signInWithGoogle");
+            console.log("User LoggedIn!");
             this.errorMsg = null;
-            this.router.navigate(['/recipes'], { relativeTo: this.activatedRoute });
-        }).catch(errObj => {
-            console.log(errObj);
-            this.errorMsg = errObj;
+        }).catch((err: string) => {
+            console.log(err);
+            this.errorMsg = err;
         });
         this.isLoading = false;
     }
