@@ -33,11 +33,13 @@ export class AuthComponent implements OnInit {
                 }).catch(errObj => console.log(errObj));
             }
             else {
-                this.userLoggedIn = false;
-                this.authService.signOut().then(() => {
-                    this.isLoading = false;
-                    console.log("User LoggedOut!");
-                });
+                // this.userLoggedIn = false;
+                // this.authService.signOut().then(() => {
+                //     this.isLoading = false;
+                //     console.log("User LoggedOut!");
+                // });
+
+                this.signInWithGoogle();
             }
         });
     }
