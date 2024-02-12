@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { Ingredient } from "../shared/ingredient.model";
 import { Subject } from "rxjs";
 
@@ -6,7 +6,7 @@ import { Subject } from "rxjs";
     providedIn: 'root'
 })
 
-export class ShoppingListService {
+export class ShoppingListService implements OnDestroy {
 
     ingredientChanged = new Subject<Ingredient[]>();
     ingredientStartedEditing = new Subject<number>();
@@ -39,5 +39,10 @@ export class ShoppingListService {
     deleteIngredient(index: number) {
         this.ingredients.splice(index, 1);
         this.ingredientChanged.next(this.ingredients);
+    }
+
+    ngOnDestroy(): void {
+        this.ingredientChanged.unsubscribe();
+        this.ingredientStartedEditing.unsubscribe();
     }
 }

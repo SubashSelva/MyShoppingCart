@@ -1,8 +1,9 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { AuthService } from "./auth.service";
 import { Router } from "@angular/router";
 import { AngularFireAuth } from "@angular/fire/compat/auth";
+import * as firebase from "firebase/compat";
 
 
 @Component({
@@ -10,36 +11,33 @@ import { AngularFireAuth } from "@angular/fire/compat/auth";
     templateUrl: './auth.component.html',
 })
 
-export class AuthComponent implements OnInit {
+export class AuthComponent implements OnInit, OnDestroy {
 
     constructor(private authService: AuthService,
         private router: Router, private fireAuth: AngularFireAuth) {
     }
+    
 
     isLoginMode = true;
     isLoading = false;
     errorMsg = '';
     userLoggedIn = false;
+    fireAuthStageUnsubscibe = null;
 
-    ngOnInit(): void {
+    async ngOnInit(): Promise<void> {
+
         this.isLoading = true;
-        this.fireAuth.onAuthStateChanged((user) => {
-            
+        this.fireAuthStageUnsubscibe = this.fireAuth.onAuthStateChanged((user) => {
             if (user != null) {
                 this.userLoggedIn = true;
-                this.authService.handleUserAuthData(user).then(resObj => {
+                this.authService.handleUserAuthData(user)
+                    .then()
+                    .catch(errObj => console.log(errObj));
                     this.isLoading = false;
-                    console.log("User LoggedIn!");
-                }).catch(errObj => console.log(errObj));
             }
             else {
-                // this.userLoggedIn = false;
-                // this.authService.signOut().then(() => {
-                //     this.isLoading = false;
-                //     console.log("User LoggedOut!");
-                // });
-
-                this.signInWithGoogle();
+                this.userLoggedIn = false;
+                this.isLoading = false;
             }
         });
     }
@@ -49,11 +47,10 @@ export class AuthComponent implements OnInit {
         this.errorMsg = null;
     }
 
-    onSubmit(authForm: NgForm) {
-        if (!authForm.valid) {
-            console.log("Form is Invalid");
+    async onSubmit(authForm: NgForm) {
+
+        if (!authForm.valid)
             return;
-        }
 
         this.isLoading = true;
         let emailId = authForm?.value?.emailId;
@@ -66,8 +63,7 @@ export class AuthComponent implements OnInit {
         else
             authPromise = this.authService.signIn(emailId, password);
 
-        authPromise.then(() => {
-            console.log("User LoggedIn!");
+        await authPromise.then(() => {
             this.isLoading = false;
             this.errorMsg = null;
         }).catch(err => {
@@ -78,18 +74,17 @@ export class AuthComponent implements OnInit {
         authForm.reset();
     }
 
-    signInWithGoogle() {
+    async signInWithGoogle() {
+
         if (this.userLoggedIn)
             this.router.navigate(['/recipes']);
 
         this.isLoading = true;
-        this.authService.signInWithGoogle().then(() => {
-            console.log("User LoggedIn!");
-            this.errorMsg = null;
-        }).catch((err: string) => {
-            console.log(err);
-            this.errorMsg = err;
-        });
+        await this.authService.signInWithGoogle();
         this.isLoading = false;
+    }
+
+    async ngOnDestroy(): Promise<void> {
+        (await this.fireAuthStageUnsubscibe)();
     }
 }
