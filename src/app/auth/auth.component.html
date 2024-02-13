@@ -1,30 +1,98 @@
-<div class="row">
-    <div class="col-xs-12 col-md-6 col-md-offset-3">
-        <div class="alert alert-danger" *ngIf="errorMsg">
-           <p>{{errorMsg}}</p>
-        </div>
-        
-        <div *ngIf="isLoading" style="text-align: center;">
-            <app-loading-spinner></app-loading-spinner>
-        </div>
-        <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)" *ngIf="!isLoading">
-            <div class="form-group">
-                <label for="emailId">Email Id</label>
-                <input type="text" id="emailId" name="emailId" class="form-control" ngModel required email>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="form-control" ngModel required minlength="6">
-            </div>
-            <div class="form-group btn-toolbar">
-                <button class="btn btn-primary btn-lg mr-1" type="submit" [disabled]="!authForm.valid">{{isLoginMode?'Login' : 'Sign Up'}}</button>
-                <button class="btn btn-primary btn-lg mr-1" type="button" (click)="onSwitchMode()">
-                    Switch to {{isLoginMode?'Sign Up':'Login'}}
-                </button>
+<div *ngIf="isLoading" style="text-align: center;">
+    <app-loading-spinner></app-loading-spinner>
+</div>
 
-                <button class="btn btn-danger btn-lg" type="button" (click)="signInWithGoogle()"><span class="glyphicon glyphicon-google"></span> SignIn with Google </button>
+<div class="container" *ngIf="!isLoading">
+    <div class="omb_login">
+        <h3 class="omb_authTitle">Login or <a (click)="onSwitchMode()">Sign up</a></h3>
+        <div class="row omb_row-sm-offset-3 omb_socialButtons">
+            <div class="col-xs-4 col-sm-2">
+                <a href="#" class="btn btn-lg btn-block omb_btn-facebook">
+                    <i class="fa fa-facebook visible-xs"></i>
+                    <span class="hidden-xs">Facebook</span>
+                </a>
             </div>
-        </form>
-        
+            <div class="col-xs-4 col-sm-2">
+                <a href="#" class="btn btn-lg btn-block omb_btn-twitter">
+                    <i class="fa fa-twitter visible-xs"></i>
+                    <span class="hidden-xs">Twitter</span>
+                </a>
+            </div>
+            <div class="col-xs-4 col-sm-2">
+                <a (click)="signInWithGoogle()" class="btn btn-lg btn-block omb_btn-google">
+                    <i class="fa fa-google-plus visible-xs"></i>
+                    <span class="hidden-xs">Google+</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="row omb_row-sm-offset-3 omb_loginOr">
+            <div class="col-xs-12 col-sm-6">
+                <hr class="omb_hrOr">
+                <span class="omb_spanOr">or</span>
+            </div>
+        </div>
+
+        <div class="row omb_row-sm-offset-3">
+            <div class="col-xs-12 col-sm-6">
+                <form class="omb_loginForm" [formGroup]="authForm" (ngSubmit)="onSubmit(authForm)">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                        <input type="text" id="emailId" placeholder="Email Id" formControlName="emailId"
+                            class="form-control">
+                    </div>
+                    <span class="help-block"></span>
+                    <ng-container *ngFor="let error of errorMessages.email; let i = index">
+                        <span class="help-block" *ngIf="authForm.get('emailId').hasError(error.type) 
+                            && (authForm.get('emailId').dirty || authForm.get('emailId').touched)">
+                            {{ error.message ?? '' }}
+                        </span>
+                    </ng-container>
+                    <div class=" input-group">
+                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                        <input type="password" id="password" placeholder="Password" formControlName="password"
+                            class="form-control">
+                    </div>
+                    <span class="help-block"></span>
+                    <ng-container *ngFor="let error of errorMessages.password">
+                        <span class="help-block" *ngIf="authForm.get('password').hasError(error.type) 
+                            && (authForm.get('password').dirty || authForm.get('password').touched)">
+                            {{ error.message ?? '' }}
+                        </span>
+                    </ng-container>
+                    <div *ngIf="!isLoginMode">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                            <input type="password" id="confirmPassword" placeholder="Confirm Password"
+                                formControlName="confirmPassword" class="form-control">
+                        </div>
+                        <span class="help-block"></span>
+                        <ng-container *ngFor="let error of errorMessages.confirmpassword">
+                            <span class="help-block" *ngIf="authForm.get('confirmPassword').hasError(error.type) 
+                                && (authForm.get('confirmPassword').dirty || authForm.get('confirmPassword').touched)">
+                                {{ error.message ?? '' }}
+                            </span>
+                        </ng-container>
+                    </div>
+                    <button [disabled]="!authForm.valid" class="btn btn-lg btn-primary btn-block"
+                        type="submit">{{isLoginMode?'Login' : 'Sign Up'}}</button>
+                </form>
+            </div>
+        </div>
+        <div class="row omb_row-sm-offset-3">
+            <div class="col-xs-12 col-sm-3">
+                <label class="checkbox">
+                    <input type="checkbox" value="remember-me">Remember Me
+                </label>
+            </div>
+            <div class="col-xs-12 col-sm-3">
+                <p class="omb_forgotPwd">
+                    <a href="#">Forgot password?</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-danger" *ngIf="errorMsg">
+        <p>{{errorMsg}}</p>
     </div>
 </div>
