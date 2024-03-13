@@ -8,6 +8,7 @@ import { CoreModule } from './core.module';
 import { AppRoutingModule } from './app.routing.module';
 import { SharedModule } from './shared/shared.module';
 import { FirebaseConfigModule } from './shopping-list/app.firebase-config.module';
+import { AuthModule, LogLevel } from 'angular-auth-oidc-client';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,22 @@ import { FirebaseConfigModule } from './shopping-list/app.firebase-config.module
     SharedModule,
     CoreModule,
     AppRoutingModule,
-    FirebaseConfigModule
+    //FirebaseConfigModule,
+
+    AuthModule.forRoot({
+      config: {
+        authority: 'https://localhost:44332/',
+        redirectUrl: window.location.origin,
+        postLogoutRedirectUri: window.location.origin,
+        clientId: 'myShopingCardApp',
+        scope: 'openid profile email offline_access role myShopingCardApi.write myShopingCardApi.read',
+        responseType: 'code',
+        silentRenew: true,
+        useRefreshToken: true,
+        logLevel: LogLevel.Debug,
+      },
+    })
+
   ],
   providers: [],
   bootstrap: [AppComponent]
